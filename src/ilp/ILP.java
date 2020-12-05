@@ -93,14 +93,15 @@ public class ILP {
             System.out.println("Solution:");
             System.out.println("Objective value = " + mpObjective.value());
             for (int i = 0; i < data.D; i++) {
-                for (int j = 0; j < 4; j++) {
-                    System.out.print("Day[" + (i + 1) + "] --- Part[" + (j + 1) + "] = {");
-                    for (int k = 0; k < data.N; k++) {
-                        if (this.x[i][j][k].solutionValue() == 1)
-                            System.out.print((k + 1) + " ");
-                    }
-                    System.out.println("}");
-                }
+//                for (int j = 0; j < 4; j++) {
+//                    System.out.print("Day[" + (i + 1) + "] --- Part[" + (j + 1) + "] = {");
+//                    for (int k = 0; k < data.N; k++) {
+//                        if (this.x[i][j][k].solutionValue() == 1)
+//                            System.out.print((k + 1) + " ");
+//                    }
+//                    System.out.print("}\n");
+//                }
+//                System.out.println("--------------------------------------------");
             }
             System.out.println("Problem solved in " + mpSolver.wallTime() + " milliseconds");
         } else {
