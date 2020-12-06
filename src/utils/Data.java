@@ -1,9 +1,9 @@
 package utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Data {
@@ -17,7 +17,8 @@ public class Data {
             this.D = sc.nextInt();
             this.alp = sc.nextInt();
             this.bet = sc.nextInt();
-            sc.nextLine();
+            if (sc.hasNext())
+                sc.nextLine();
             if (sc.hasNext()) {
                 this.dayOff = new ArrayList[N];
                 for (int i = 0; i < N; i++) {
@@ -40,8 +41,75 @@ public class Data {
         return "N = " + this.N + "; D = " + this.D + "; alpha = " + this.alp + "; beta = " + this.bet;
     }
 
+    public static void writeToFile(String saveDir, int N, int D, int alpha, int beta, List<Integer>[] dayOff){
+        try {
+            File file = new File(saveDir);
+            file.createNewFile();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(saveDir, false));
+
+            writer.write(N + " " + D + " " + alpha + " " + beta);
+            for (int i = 0; i < N; i++){
+                writer.newLine();
+                for(int j = 0; j<dayOff[i].size(); ++j){
+                    writer.write(dayOff[i].get(j) + " ");
+                }
+            }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeToFile(String saveDir, int N, int D, int alpha, int beta){
+        try {
+            File file = new File(saveDir);
+            file.createNewFile();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(saveDir, false));
+
+            writer.write(N + " " + D + " " + alpha + " " + beta);
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public static Data generateTotallyRandomData(long seed, String saveDir, boolean hasDayOff){
+        Random rd = new Random(seed);
+        int N = rd.nextInt(100) + 1;
+        int D = rd.nextInt(100) + 1;
+        int alpha = rd.nextInt((int) 4*N/5) + 1;
+        int beta = rd.nextInt(N-alpha + 1) + alpha;
+        List<Integer>[] dayOff ;
+
+        if (hasDayOff)
+        {
+            dayOff = new ArrayList[N];
+            for (int i = 0; i < N; i++) {
+                int dayOffLength_i = rd.nextInt(D + 1) ;
+                dayOff[i] = new ArrayList<>();
+                if (dayOffLength_i ==0)
+                {
+                    dayOff[i].add(0);
+                }
+                else
+                for (int j = 0; j < dayOffLength_i; ++j) {
+                    dayOff[i].add(rd.nextInt(D-1) + 1);
+                }
+            }
+            writeToFile(saveDir, N, D, alpha, beta, dayOff);
+        }
+        else writeToFile(saveDir, N, D, alpha, beta);
+
+        return new Data(saveDir);
+    }
+
     public static void main(String[] args) {
-        Data data = new Data("./data/sample1.txt");
-        System.out.println(data.toString());
+//        Data data = new Data("./data/sample.txt");
+//        System.out.println(data.toString());
+
+        Data data1 = generateTotallyRandomData(1, "./data/sample2.txt", true);
+        System.out.println(data1.toString());
     }
 }
