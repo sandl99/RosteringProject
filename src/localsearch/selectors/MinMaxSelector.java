@@ -12,12 +12,14 @@ public class MinMaxSelector {
 	 * @param args
 	 */
 	
-	private IConstraint _S;
-	private VarIntLS[]	_vars;
-	private int			_minValue;
-	private int			_maxValue;
-	private Random		_R;
-	private ArrayList<Integer>   _L;
+	protected IConstraint _S;
+	protected VarIntLS[]	_vars;
+	protected int			_minValue;
+	protected int			_maxValue;
+	protected Random		_R;
+	protected ArrayList<Integer>   _L;
+//	private VarIntLS _objective;
+
 	public MinMaxSelector(IConstraint S){
 		_S = S;
 		_vars = _S.getVariables();
@@ -31,6 +33,7 @@ public class MinMaxSelector {
 			if(_minValue > _vars[i].getMinValue()) _minValue = _vars[i].getMinValue();
 			if(_maxValue < _vars[i].getMaxValue()) _maxValue = _vars[i].getMaxValue();
 		}
+//		_objective = objective;
 	}
 	public VarIntLS selectMostViolatingVariable(){
 		int sel_i = -1;

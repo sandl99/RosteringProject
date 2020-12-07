@@ -13,7 +13,18 @@ public class VarIntLS extends VarInt {
 	private LocalSearchManager _mgr;
 	private int _oldValue;
 	private TreeSet<Integer> _domain;
+	private String name;
 	
+	public VarIntLS(LocalSearchManager mgr, int min, int max, String name){
+		super(min,max);
+		_mgr = mgr;
+		_domain = new TreeSet<Integer>();
+		for(int  v = min; v <= max; v++)
+			_domain.add(v);
+		_mgr.post(this);
+		this.name = name;
+	}
+
 	public VarIntLS(LocalSearchManager mgr, int min, int max){
 		super(min,max);
 		_mgr = mgr;
@@ -21,6 +32,11 @@ public class VarIntLS extends VarInt {
 		for(int  v = min; v <= max; v++)
 			_domain.add(v);
 		_mgr.post(this);
+		this.name = "null";
+	}
+
+	public String getName() {
+		return this.name;
 	}
 	private int getMin(TreeSet<Integer> S){
 		int min = 0;

@@ -2,6 +2,7 @@ package test;
 
 import com.google.ortools.linearsolver.MPVariable;
 import cp.CP;
+import localsearch.model.VarIntLS;
 import utils.Data;
 import com.google.ortools.sat.*;
 
@@ -11,10 +12,15 @@ public class TestCase {
     int[][][] x;
     Data data;
     final static Logger log = Logger.getGlobal();
-
+    int s = -1;
     public TestCase(int[][][] x, Data data) {
         this.x = x;
         this.data = data;
+    }
+    public TestCase(int[][][] x, Data data, int s) {
+        this.x = x;
+        this.data = data;
+        this.s = s;
     }
 
     public static int[][][] convertSol(IntVar[][][] x, CpSolver cpSolver, Data data) {
@@ -46,12 +52,39 @@ public class TestCase {
         return tmp;
     }
 
+    public static int[][][] convertSol(VarIntLS[][][] x, Data data) {
+        int[][][] tmp = new int[data.D][4][data.N];
+        for (int i = 0; i < data.D; i++) {
+            for (int j = 0; j < 4; j++) {
+                for (int k = 0; k < data.N; k++) {
+                    tmp[i][j][k] = (int) x[i][j][k].getValue();
+                }
+            }
+        }
+        return tmp;
+    }
     public int check() {
         int err = 0;
         err += this.checkC1();
         err += this.checkC2();
         err += this.checkC3();
         err += this.checkC4();
+        if (s > -1) {
+            err += this.checkC5();
+        }
+        System.out.println("Solution:");
+        System.out.println("Objective value = " + s);
+        for (int i = 0; i < data.D; i++) {
+            for (int j = 0; j < 4; j++) {
+                System.out.print("Day[" + (i) + "] --- Part[" + (j) + "] = {");
+                for (int k = 0; k < data.N; k++) {
+                    if (this.x[i][j][k] == 1)
+                        System.out.print((k) + " ");
+                }
+                System.out.print("}\n");
+            }
+            System.out.println("--------------------------------------------");
+        }
         return err;
     }
 
@@ -120,6 +153,20 @@ public class TestCase {
                         err += 1;
                     }
                 }
+            }
+        }
+        return err;
+    }
+
+    private int checkC5() {
+        int err = 0;
+        for (int k = 0; k < data.N; k++) {
+            int sum = 0;
+            for (int i = 0; i < data.D; i++) {
+                sum += this.x[i][3][k];
+            }
+            if (sum > s) {
+                log.warning("Worker[" + k + "] conflict night!");
             }
         }
         return err;

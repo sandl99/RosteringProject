@@ -59,9 +59,9 @@ public class LocalSearchManager {
 	}
 	public void print(){
 		System.out.println(name() + "::print");
-		System.out.print("VarIntLS = ");
+		System.out.print("VarIntLS = \n");
 		for(int i = 0; i < _x.size(); i++)
-			System.out.println("_x[" + _x.get(i).getID() + "], ");
+			System.out.println("_x[" + _x.get(i).getID() + "], name: " + _x.get(i).getName());
 		System.out.println();
 		System.out.println("_invariants = ");
 		for(int i = 0;i < _invariants.size(); i++){
