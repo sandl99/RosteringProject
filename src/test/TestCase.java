@@ -52,6 +52,17 @@ public class TestCase {
         return tmp;
     }
 
+    public static int[][][] convertSol(int[][] x, Data data) {
+        int[][][] tmp = new int[data.D][4][data.N];
+        for (int i = 0; i < data.D; i++) {
+            for (int k = 0; k < data.N; k++) {
+                if (x[i][k] < 4) {
+                    tmp[i][x[i][k] % 4][k] = 1;
+                }
+            }
+        }
+        return tmp;
+    }
     public static int[][][] convertSol(VarIntLS[][][] x, Data data) {
         int[][][] tmp = new int[data.D][4][data.N];
         for (int i = 0; i < data.D; i++) {
@@ -156,6 +167,24 @@ public class TestCase {
             }
         }
         return err;
+    }
+
+    public static int[][][] convertSol(int[] y, Data data) {
+        int[][] tmp = new int[data.D][data.N];
+        for (int i = 0; i < data.D; i++) {
+            for (int k = 0; k < data.N; k++) {
+                tmp[i][k] = y[i * data.N + k];
+            }
+        }
+        int[][][] x = new int[data.D][4][data.N];
+        for (int i = 0; i < data.D; i++) {
+            for (int k = 0; k < data.N; k++) {
+                if (tmp[i][k] < 4) {
+                    x[i][tmp[i][k] % 4][k] = 1;
+                }
+            }
+        }
+        return x;
     }
 
     private int checkC5() {

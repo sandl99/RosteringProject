@@ -4,115 +4,106 @@ import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import core.VarInt;
+import javafx.scene.control.Tab;
 import localsearch.constraints.basic.Implicate;
 import localsearch.constraints.basic.IsEqual;
 import localsearch.constraints.basic.LessOrEqual;
 import localsearch.functions.conditionalsum.ConditionalSum;
+import localsearch.functions.max_min.Max;
 import localsearch.functions.sum.Sum;
-import localsearch.model.ConstraintSystem;
-import localsearch.model.IFunction;
-import localsearch.model.LocalSearchManager;
-import localsearch.model.VarIntLS;
+import localsearch.model.*;
 import localsearch.search.MultiStageGreedySearch;
+import localsearch.search.TabuSearch;
 import test.TestCase;
 import utils.Data;
 
 public class HeuristicRostering {
-    VarIntLS[][][] x;
+    VarIntLS[][] x;
     Data data;
     LocalSearchManager localSearchManager;
     ConstraintSystem S;
     VarIntLS s;
+    IFunction obj;
 //    private static int[] sum;
 
     public HeuristicRostering(String filename) {
         this.data = new Data(filename);
-        this.x = new VarIntLS[data.D][4][data.N];
+        this.x = new VarIntLS[data.D][data.N];
     }
 
     public void init() {
         localSearchManager = new LocalSearchManager();
         for (int i = 0; i < data.D; i++) {
-            for (int j = 0; j < 4; j++) {
+//            for (int j = 0; j < 4; j++) {
                 for (int k = 0; k < data.N; k++) {
-                    this.x[i][j][k] = new VarIntLS(localSearchManager, 0, 1, "x[" + i + "][" + j + "][" + k + "]");
+                    this.x[i][k] = new VarIntLS(localSearchManager, 0, 4, "x[" + i + "][" + k + "]");
                 }
-            }
+//            }
         }
         this.S = new ConstraintSystem(this.localSearchManager);
-        this.s = new VarIntLS(localSearchManager, 0, 5000, "s");
+        this.s = new VarIntLS(localSearchManager, 0, 1000, "s");
     }
 
     public void makeConstraint() {
 //        Nhan vien lam nhieu nhat mot buoi va co the nghi mot so buoi
         for (int k = 0; k < data.N; k++) {
             for (int i = 0; i < data.D; i++) {
-                Sum sum = new Sum(new VarIntLS[]{this.x[i][0][k], this.x[i][1][k], this.x[i][2][k], this.x[i][3][k]});
+//                Sum sum = new Sum(new VarIntLS[]{this.x[i][0][k], this.x[i][1][k], this.x[i][2][k], this.x[i][3][k]});
                 if (data.dayOff[k].contains(i)) {
 //                    Constraint constraint = this.cpModel.addEquality(LinearExpr.sum(new IntVar[]{this.x[i][0][k], this.x[i][1][k], this.x[i][2][k], this.x[i][3][k]}),0);
-                    this.S.post(new IsEqual(sum, 0));
-                } else {
+//                    this.S.post(new IsEqual(sum, 0));
+                    this.S.post(new IsEqual(this.x[i][k], 4));
+//                } else {
 //                    Constraint constraint = this.cpModel.addLinearConstraint(LinearExpr.sum(new IntVar[]{this.x[i][0][k], this.x[i][1][k], this.x[i][2][k], this.x[i][3][k]}), 0, 1);
-                    this.S.post(new LessOrEqual(sum, 1));
+//                    this.S.post(new LessOrEqual(sum, 1));
                 }
             }
         }
 //         Mỗi ca cần có từ alpha đến beta nhân viên
+        int[] sum = new int[data.N];
+        for (int i = 0; i < data.N; i++) {
+            sum[i] = 1;
+        }
         for (int i = 0; i < data.D; i++) {
             for (int j = 0; j < 4; j++) {
-//                Constraint constraint = this.cpModel.addLinearConstraint(LinearExpr.sum(this.x[i][j]), data.alp, data.bet);
-                Sum sum = new Sum(this.x[i][j]);
-                this.S.post(new LessOrEqual(sum, data.bet));
-                this.S.post(new LessOrEqual(data.alp, sum));
+                ConditionalSum conditionalSum = new ConditionalSum(this.x[i], sum, j);
+                this.S.post(new LessOrEqual(conditionalSum, data.bet));
+                this.S.post(new LessOrEqual(data.alp, conditionalSum));
             }
         }
 //          Hôm nay làm ca đêm thì hôm sau được nghỉ
         for (int i = 1; i < data.D; i++) {
             for (int k = 0; k < data.N; k++) {
-//                IntVar b = this.cpModel.newBoolVar("b[" + i + "][" + k + "]");
-//                this.cpModel.addEquality(LinearExpr.sum(new IntVar[] {this.x[i - 1][3][k]}), 1).onlyEnforceIf(b);
-//                this.cpModel.addEquality(LinearExpr.sum(new IntVar[] {this.x[i - 1][3][k]}), 0).onlyEnforceIf(b.not());
-//                IntVar c = this.cpModel.newBoolVar("c[" + i + "][" + k + "]");
-//                this.cpModel.addEquality(LinearExpr.sum(new IntVar[]{this.x[i][0][k], this.x[i][1][k], this.x[i][2][k], this.x[i][3][k]}),0).onlyEnforceIf(c);
-//                this.cpModel.addImplication(b, c);
-                Sum sum = new Sum(new VarIntLS[] {this.x[i][0][k], this.x[i][1][k], this.x[i][2][k], this.x[i][3][k]});
-                this.S.post(new Implicate(new IsEqual(this.x[i - 1][3][k], 1), new IsEqual(sum, 0)));
+                this.S.post(new Implicate(new IsEqual(this.x[i - 1][k], 3), new IsEqual(this.x[i][k], 4)));
             }
         }
     }
 
     public void makeObjective() {
-        //        make maximize objective
+        IFunction[] xT = new IFunction[data.N];
+        int[] sum = new int[data.D];
+        for (int i = 0; i < data.D; i++) sum[i] = 1;
         for (int k = 0; k < data.N; k++) {
             VarIntLS[] arr = new VarIntLS[data.D];
             for (int i = 0; i < data.D; i++) {
-                arr[i] = this.x[i][3][k];
+                arr[i] = this.x[i][k];
             }
-//            this.cpModel.addLessOrEqual(LinearExpr.sum(arr), LinearExpr.sum(new IntVar[]{s}));
-            Sum sum = new Sum(arr);
-            this.S.post(new LessOrEqual(sum, s));
+            ConditionalSum conditionalSum = new ConditionalSum(arr, sum, 3);
+            xT[k] = conditionalSum;
         }
-//        this.cpModel.minimize(LinearExpr.sum(new IntVar[] {s}));
+        this.obj = new Max(xT);
         this.localSearchManager.close();
     }
 
     public static void main(String[] args) {
-        HeuristicRostering heuristicRostering = new HeuristicRostering("./data/sample.txt");
+        HeuristicRostering heuristicRostering = new HeuristicRostering("./data/sample2.txt");
         heuristicRostering.init();
         heuristicRostering.makeConstraint();
         heuristicRostering.makeObjective();
-        heuristicRostering.localSearchManager.print();
-        VarIntLS[] y = heuristicRostering.S.getVariables();
-        for (int i = 0; i < y.length; i++) {
-            System.out.println(y[i].getDomain()+ " " + y[i].getName());
-        }
-        MultiStageGreedySearch multiStageGreedySearch = new MultiStageGreedySearch();
-        multiStageGreedySearch.search(heuristicRostering.S, 120, 4000, true);
-        System.out.println(heuristicRostering.s.getValue());
-        System.out.println(heuristicRostering.S.getAssignDelta(heuristicRostering.s, 0));
-        TestCase testCase = new TestCase(TestCase.convertSol(heuristicRostering.x, heuristicRostering.data), heuristicRostering.data, heuristicRostering.s.getValue());
-        testCase.check();
-        int san = 1;
+
+        TabuSearch tabuSearch = new TabuSearch();
+        tabuSearch.search(heuristicRostering.S, 100, 120, 3000, 150);
+        tabuSearch.searchMaintainConstraintsMinimize(heuristicRostering.obj, heuristicRostering.S,100, 120, 3000, 150);
     }
 
 }

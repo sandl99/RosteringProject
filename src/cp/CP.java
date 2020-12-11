@@ -101,7 +101,7 @@ public class CP {
     }
 
     public static void main(String[] args) {
-        CP cp = new CP("data/sample.txt");
+        CP cp = new CP("data/sample1.txt");
         cp.run();
     }
 }

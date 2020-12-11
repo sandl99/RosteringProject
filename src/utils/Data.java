@@ -76,10 +76,10 @@ public class Data {
     }
 
     public static Data generateTotallyRandomData(long seed, String saveDir, boolean hasDayOff){
-        Random rd = new Random(seed);
+        Random rd = new Random();
         int N = rd.nextInt(100) + 1;
         int D = rd.nextInt(100) + 1;
-        int alpha = rd.nextInt((int) 4*N/5) + 1;
+        int alpha = rd.nextInt((int) N/5) + 1;
         int beta = rd.nextInt(N-alpha + 1) + alpha;
         List<Integer>[] dayOff ;
 
@@ -87,15 +87,15 @@ public class Data {
         {
             dayOff = new ArrayList[N];
             for (int i = 0; i < N; i++) {
-                int dayOffLength_i = rd.nextInt(D + 1) ;
+                int dayOffLength_i = rd.nextInt(D/10) + 1;
                 dayOff[i] = new ArrayList<>();
-                if (dayOffLength_i ==0)
-                {
-                    dayOff[i].add(0);
-                }
-                else
+//                if (dayOffLength_i ==0)
+//                {
+//                    dayOff[i].add(0);
+//                }
+//                else
                 for (int j = 0; j < dayOffLength_i; ++j) {
-                    dayOff[i].add(rd.nextInt(D-1) + 1);
+                    dayOff[i].add(rd.nextInt(D));
                 }
             }
             writeToFile(saveDir, N, D, alpha, beta, dayOff);
@@ -109,7 +109,7 @@ public class Data {
 //        Data data = new Data("./data/sample.txt");
 //        System.out.println(data.toString());
 
-        Data data1 = generateTotallyRandomData(1, "./data/sample2.txt", true);
+        Data data1 = generateTotallyRandomData(1, "./data/sample1.txt", true);
         System.out.println(data1.toString());
     }
 }

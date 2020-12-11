@@ -100,6 +100,8 @@ public class ConstraintSystem extends AbstractInvariant implements IConstraint {
 		return delta;
 	}
 
+
+
 	@Override
 	public int getSwapDelta(VarIntLS x, VarIntLS y) {
 		// TODO Auto-generated method stub
