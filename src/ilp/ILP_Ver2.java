@@ -120,7 +120,7 @@ public class ILP_Ver2 {
     }
 
     public static void main(String[] args) {
-        ILP_Ver2 ilp_ver2 = new ILP_Ver2("./data/sample1.txt");
+        ILP_Ver2 ilp_ver2 = new ILP_Ver2("./data/sample3.txt");
         ilp_ver2.run();
     }
 }

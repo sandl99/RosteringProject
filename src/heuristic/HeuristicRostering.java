@@ -4,7 +4,6 @@ import com.google.ortools.sat.Constraint;
 import com.google.ortools.sat.IntVar;
 import com.google.ortools.sat.LinearExpr;
 import core.VarInt;
-import javafx.scene.control.Tab;
 import localsearch.constraints.basic.Implicate;
 import localsearch.constraints.basic.IsEqual;
 import localsearch.constraints.basic.LessOrEqual;
@@ -96,14 +95,14 @@ public class HeuristicRostering {
     }
 
     public static void main(String[] args) {
-        HeuristicRostering heuristicRostering = new HeuristicRostering("./data/sample2.txt");
+        HeuristicRostering heuristicRostering = new HeuristicRostering("./data/sample3.txt");
         heuristicRostering.init();
         heuristicRostering.makeConstraint();
         heuristicRostering.makeObjective();
 
         TabuSearch tabuSearch = new TabuSearch();
-        tabuSearch.search(heuristicRostering.S, 100, 120, 3000, 150);
-        tabuSearch.searchMaintainConstraintsMinimize(heuristicRostering.obj, heuristicRostering.S,100, 120, 3000, 150);
+        tabuSearch.search(heuristicRostering.S, 50, 600, 3000, 10);
+        tabuSearch.searchMaintainConstraintsMinimize(heuristicRostering.obj, heuristicRostering.S,50, 600, 3000, 10);
     }
 
 }
